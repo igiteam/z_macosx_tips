@@ -3,41 +3,22 @@
 
 @implementation AirDropOpener
 
-- (BOOL)openAirDropWithError:(NSString **)errorOut {
-    // Path to the AirDrop.app that lives inside Finder.app.
-    // Launching it with /usr/bin/open is exactly what double-clicking it does.
-    NSString *airdropPath =
+- (void)openAirDrop {
+    NSString *path =
         @"/System/Library/CoreServices/Finder.app/Contents/Applications/AirDrop.app";
+    NSLog(@"[AirDropOpener] opening %@", path);
 
-    if (![[NSFileManager defaultManager] fileExistsAtPath:airdropPath]) {
-        if (errorOut) {
-            *errorOut = [NSString stringWithFormat:
-                @"AirDrop.app not found at expected path:\n%@", airdropPath];
-        }
-        return NO;
+    NSTask *t = [[NSTask alloc] init];
+    t.launchPath = @"/usr/bin/open";
+    t.arguments = @[path];
+
+    NSError *err = nil;
+    if (![t launchAndReturnError:&err]) {
+        NSLog(@"[AirDropOpener] launch failed: %@", err);
+        return;
     }
-
-    NSTask *task = [[NSTask alloc] init];
-    task.launchPath = @"/usr/bin/open";
-    task.arguments  = @[airdropPath];
-
-    @try {
-        [task launch];
-        [task waitUntilExit];
-    } @catch (NSException *e) {
-        if (errorOut) *errorOut = [NSString stringWithFormat:
-            @"Failed to launch /usr/bin/open: %@", e.reason];
-        return NO;
-    }
-
-    if (task.terminationStatus != 0) {
-        if (errorOut) {
-            *errorOut = [NSString stringWithFormat:
-                @"/usr/bin/open exited with status %d", task.terminationStatus];
-        }
-        return NO;
-    }
-    return YES;
+    [t waitUntilExit];
+    NSLog(@"[AirDropOpener] open exited %d", t.terminationStatus);
 }
 
 @end

@@ -4,8 +4,11 @@
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         NSApplication *app = [NSApplication sharedApplication];
-        AppDelegate *delegate = [[AppDelegate alloc] init];
-        app.delegate = delegate;
+        [app setActivationPolicy:NSApplicationActivationPolicyAccessory];
+
+        AppDelegate *d = [[AppDelegate alloc] init];
+        app.delegate = d;
+
         [app run];
     }
     return 0;
